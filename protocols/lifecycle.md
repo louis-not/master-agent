@@ -1,59 +1,54 @@
 # Lifecycle
 
-The flow from user request to landed change.
+A feature moves left-to-right across the kanban board (`board.md`). The Master moves the card; sentinels gate the moves.
 
-## Steps
+## Columns
 
-1. **Intake.** Master reads user request and restates as a one-paragraph brief.
-2. **GATE 1 — Interpretation.** Master confirms the brief with the user before spending agent cycles.
-3. **Product.** Master dispatches `agent-product`. Spec lands in `feature_status.md`.
-4. **Design (if UI involved).** Master dispatches `agent-designer`. Screen + component spec lands in design memory.
-5. **GATE 2 — Spec.** Master shows the product + design output and gets user approval. **This is the cheapest gate to fail; spend it here, not later.**
-6. **Plan.** Master picks which dev agents are needed and creates a feature branch.
-7. **Implement.** Master dispatches dev agents:
-   - DB agent first if schema changes (others wait on its sentinel)
-   - Backend next if API changes (frontend waits on contract)
-   - Frontend in parallel with backend if API contract is stable
-8. **Test.** Once all dev sentinels are in, Master dispatches `agent-qa`.
-9. **Review.** In parallel with QA, Master dispatches `agent-reviewer`.
-10. **GATE 3 — Pre-land.** Master reports QA + review outcome to the user and asks whether to commit / push / open PR.
-11. **Land.** Master commits per [git-discipline.md](git-discipline.md). No push without explicit user OK.
-12. **Log.** Master verifies `change_logs.md`, `feature_status.md`, and memory indexes are current. Marks feature as done.
-
-## Gates Recap
-
-| Gate | When | What user sees |
+| Column | Entered when | Exited when |
 |---|---|---|
-| 1 — Interpretation | Before any agent runs | One-paragraph brief |
-| 2 — Spec | After Product + Design | Spec summary with open questions |
-| 3 — Pre-land | After QA + Review | Pass/fail summary + reviewer verdict |
+| **Plan** | Master creates the card from a user brief | Product sentinel arrives; spec is on the card or in linked topic memory |
+| **Design** | Card needs UI work (skip otherwise) | Designer sentinel arrives; screen spec is written |
+| **Develop** | Spec approved at Gate 2; branch created | All required dev sentinels arrive (db, backend, frontend) |
+| **Test & Review** | Dev sentinels in | QA sentinel + Reviewer sentinel both arrive |
+| **Ship** | Gate 3 passed; user OK'd commit/push | Code lands on the target branch |
+| **Done** | Lands on target (dev or prod) | (terminal) |
+| **Blocked** | Any column flips a card here when stuck | Master unblocks (re-brief or escalate) |
 
-## Ad-Hoc Escalations (don't wait for a gate)
+## Flow
 
-- Ambiguous requirements not resolvable from existing memory
-- Destructive ops requested or implied by a worker (drops, force-push, mass-delete)
-- Scope creep — worker wants to do more than the spec
-- Cross-component breaking changes not anticipated in the spec
-- Hung agents (no sentinel + no pane activity past threshold)
-- Schema migrations on populated tables
-- Credential or config-secret changes
-- Any external-system side effect (push, deploy, send message, post to PR)
+1. **Intake.** Master writes a one-paragraph brief and creates the card in **Plan**.
+2. **Gate 1 — Interpretation.** Master confirms the brief with the user.
+3. **Product.** Dispatch `agent-product`. Spec lands in the card or linked topic memory.
+4. **Design (if UI).** Dispatch `agent-designer`. Card → **Design** → done.
+5. **Gate 2 — Spec.** Master shows product + design output. User approves or redirects. *(Cheapest gate to fail; spend it here, not later.)*
+6. **Branch.** Master creates the feature branch. Card → **Develop**.
+7. **Implement.** Dispatch dev agents:
+   - DB first if schema changes (others wait on its sentinel).
+   - Backend next if API changes (frontend waits on the contract).
+   - Frontend in parallel with backend once the contract is stable.
+8. **Test & Review.** Once all dev sentinels are in, dispatch QA + Reviewer in parallel. Card → **Test & Review**.
+9. **Gate 3 — Pre-land.** Master reports QA + reviewer outcome. User OK's commit / push.
+10. **Ship.** Master commits per [git-discipline.md](git-discipline.md). Card → **Ship**. Push only with explicit user OK.
+11. **Done.** After landing on the target branch, card → **Done**. Verify `change_logs.md` and memory indexes are current.
 
-## Parallelism Rules
+## Parallelism
 
-**Run in parallel when:**
-- Independent components (frontend + backend with stable contract)
-- QA + Review on the same branch (read-only operations)
+- **Parallel:** independent components (frontend + backend with stable contract); QA + Reviewer (both read-only).
+- **Sequential:** schema → backend → frontend; implementation → QA; anything touching the same files.
 
-**Run sequentially when:**
-- Schema → backend → frontend (each consumes the previous)
-- Implementation → QA (QA needs code to test)
-- Anything that touches the same files
+## When a card moves to Blocked
 
-## Re-Dispatch on Failure
+- Worker sentinel returns `STATUS=block`.
+- Ambiguity not resolvable from existing memory.
+- External-system side effect needed (push, deploy, send message, post to PR).
+- Hung agent (no sentinel past threshold + no pane activity).
+- Schema migration on a populated table, credential change, or other destructive op surfaced mid-work.
 
-If a worker reports a blocker or QA fails:
-1. Master inspects the sentinel + memory output
-2. Decides: re-dispatch with a corrected brief, or escalate to user
-3. Clears the sentinel before re-dispatch
-4. Logs the failure mode for future briefing improvements
+QA `STATUS=fail` usually sends the card back to **Develop** with a note — not to **Blocked**, unless the fix path is unclear.
+
+## Re-dispatch on failure
+
+1. Inspect the sentinel + the memory the worker wrote.
+2. Decide: corrected brief, or escalate to user.
+3. Clear the sentinel.
+4. Re-dispatch.
