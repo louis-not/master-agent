@@ -4,14 +4,14 @@ A project-agnostic template for running a software project with **one Master Cla
 
 ## The idea
 
-You talk only to the **Master**. The Master dispatches **specialized agents** (Product, Designer, Frontend, Backend, DB, QA, Reviewer) running in their own `tmux` sessions, tracks each feature on a **kanban board**, coordinates work through memory files + git, and checks in with you at three gates.
+You talk only to the **Master**. The Master writes the spec, dispatches **specialized agents** (Frontend, Backend, DB, QA, Reviewer) running in their own `tmux` sessions, tracks each feature on a **kanban board**, coordinates work through memory files + git, and checks in with you at three gates.
 
 Subagents never address you directly. State lives on disk (the board, memory files, git) — not in chat.
 
 ## Structure
 
 - [agent.md](agent.md) — Master orchestrator charter (start here)
-- [agents/](agents/) — Per-role charters (Product, Designer, Frontend, Backend, DB, QA, Reviewer)
+- [agents/](agents/) — Per-role charters (Frontend, Backend, DB, QA, Reviewer)
 - [protocols/substrate.md](protocols/substrate.md) — tmux topology, sentinel contract, memory layout
 - [protocols/lifecycle.md](protocols/lifecycle.md) — kanban columns + flow + gates
 - [protocols/git-discipline.md](protocols/git-discipline.md) — branch/commit rules

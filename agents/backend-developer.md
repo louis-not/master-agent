@@ -12,4 +12,4 @@
 - Committing or pushing.
 - Inventing schema or migrations.
 
-**Sentinel:** `memory/.ready-backend` with `STATUS=done|block`.
+**Sentinel:** `memory/.ready-backend`. Allowed `STATUS`: `done`, `block`. Full sentinel format in [protocols/substrate.md](../protocols/substrate.md#sentinels). For this role: `DECISIONS` should name the final API contract (verb + path + payload shape), error semantics, and any deviation from existing conventions; `AMBIGUITIES` lists schema-side assumptions the DB agent needs to confirm.

@@ -14,4 +14,4 @@
   - Removing indexes that production may rely on.
   - Migrations that require downtime.
 
-**Sentinel:** `memory/.ready-db` with `STATUS=done|block`.
+**Sentinel:** `memory/.ready-db`. Allowed `STATUS`: `done`, `block`. Full sentinel format in [protocols/substrate.md](../protocols/substrate.md#sentinels). For this role: `DECISIONS` must include the migration's forward + rollback strategy, an impact summary for Backend (new/changed columns, nullability, defaults), and any indexes added or dropped; `AMBIGUITIES` lists destructive operations the Master must confirm with the user before run.

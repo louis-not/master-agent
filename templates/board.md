@@ -20,8 +20,6 @@ in a "Was in:" line so it can return.
 
 ## Plan
 
-## Design
-
 ## Develop
 
 ## Test & Review

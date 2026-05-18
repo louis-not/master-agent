@@ -22,4 +22,4 @@
 - **Suggestions** — should fix (clarity, maintainability).
 - **Nits** — optional (style, naming).
 
-**Sentinel:** `memory/.ready-review` with `STATUS=block|approve`.
+**Sentinel:** `memory/.ready-review`. Allowed `STATUS`: `approve`, `block`. Full sentinel format in [protocols/substrate.md](../protocols/substrate.md#sentinels). For this role: `DECISIONS` summarizes the verdict (`approve` or `block`) with the bucket counts (Blocking / Suggestions / Nits) and the path to the full review notes; `AMBIGUITIES` lists any spec line the reviewer found unclear when judging correctness.
