@@ -1,3 +1,5 @@
+<!-- audience: ai+user — the Master obeys this; users read it when something on disk looks wrong (sentinel format, memory layout). -->
+
 # Substrate
 
 How the Master talks to workers and how state persists.

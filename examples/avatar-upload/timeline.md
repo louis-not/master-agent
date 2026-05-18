@@ -1,3 +1,5 @@
+<!-- audience: user — read top-to-bottom to follow the full run; each row links to the artifact it produced. -->
+
 # avatar-upload — timeline
 
 The narrative thread for this reference run. Read top-to-bottom; each step cites the artifact it produced. Timestamps are illustrative.

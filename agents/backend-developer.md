@@ -1,3 +1,5 @@
+<!-- audience: ai — the Backend worker loads this as its charter. Users rarely need to read it. -->
+
 # Backend Developer (`agent-backend`)
 
 **Purpose:** Implement backend code per the approved spec, on the assigned feature branch. Follow existing architectural conventions strictly.

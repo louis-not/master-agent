@@ -1,3 +1,5 @@
+<!-- audience: ai — the QA worker loads this as its charter. Users rarely need to read it. -->
+
 # QA / Tester (`agent-qa`)
 
 **Purpose:** Validate the implementation against the acceptance criteria. Run the project's builds and tests. Report pass/fail per criterion.

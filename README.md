@@ -1,3 +1,5 @@
+<!-- audience: user — humans set up and operate the template; the AI does not load this file. -->
+
 # Master Agent — Multi-Agent Orchestration Template
 
 A project-agnostic template for running a software project with **one Master Claude orchestrator** and a roster of specialized subagents in persistent `tmux` sessions.
@@ -8,14 +10,39 @@ You talk only to the **Master**. The Master writes the spec, dispatches **specia
 
 Subagents never address you directly. State lives on disk (the board, memory files, git) — not in chat.
 
+## File audience map
+
+Every markdown file in this repo has an `<!-- audience: ... -->` banner at the top. The taxonomy:
+
+- **`user`** — humans read or run this. The AI does not load it into context.
+- **`ai`** — Claude (Master or worker) loads this as part of its operating context. Humans rarely need to read it.
+- **`ai+user`** — both. Loaded by Claude during execution; read by humans during onboarding or debugging.
+
+| Path | Audience | When you (the user) touch it |
+|---|---|---|
+| [README.md](README.md) | `user` | Once, when setting up the template |
+| [install.sh](install.sh) | `user` | Once, to verify host dependencies |
+| [agent.md](agent.md) | `ai+user` | The Master loads it every run. You read it during onboarding to understand the system, or when debugging. |
+| [agents/](agents/) | `ai` | Each worker loads its own charter. You can skim during onboarding but don't edit casually — workers depend on the wording. |
+| [protocols/substrate.md](protocols/substrate.md) | `ai+user` | The Master obeys it. You consult it when something on disk looks wrong (sentinel format, memory layout). |
+| [protocols/lifecycle.md](protocols/lifecycle.md) | `ai+user` | The Master obeys it. You read it to understand gate reports, conflict resolution, worker resume, and intervention rules. |
+| [protocols/git-discipline.md](protocols/git-discipline.md) | `ai+user` | The Master obeys it. You read it to know what branch/commit shape to expect. |
+| [templates/](templates/) | `user` | You copy these into your project once per setup. The Master populates the copies. |
+| [scripts/agent-status](scripts/agent-status) | `user` | You run it any time you want an at-a-glance view of the loop. |
+| [examples/](examples/) | `user` | You read these to see what real artifacts (sentinels, gate reports, change logs) look like. |
+
+The artifacts the Master produces at runtime (gate reports, sentinels, populated `change_logs.md`, `board.md` cards) are written for **both** audiences — they are the conversation between you and the system.
+
 ## Structure
 
 - [agent.md](agent.md) — Master orchestrator charter (start here)
 - [agents/](agents/) — Per-role charters (Frontend, Backend, DB, QA, Reviewer)
 - [protocols/substrate.md](protocols/substrate.md) — tmux topology, sentinel contract, memory layout
-- [protocols/lifecycle.md](protocols/lifecycle.md) — kanban columns + flow + gates
+- [protocols/lifecycle.md](protocols/lifecycle.md) — kanban columns, gates, conflict resolution, worker resume, intervention contract
 - [protocols/git-discipline.md](protocols/git-discipline.md) — branch/commit rules
 - [templates/](templates/) — Skeletons for `board.md`, per-project `MEMORY.md`, and `change_logs.md`
+- [scripts/agent-status](scripts/agent-status) — At-a-glance inspection of the running loop
+- [examples/](examples/) — Worked reference runs
 - [install.sh](install.sh) — Dependency check for git, tmux, and the `claude` CLI
 
 ## Requirements

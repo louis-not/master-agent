@@ -1,3 +1,4 @@
+<!-- audience: user — you copy this skeleton into each component's memory/ directory once. The owning worker appends to the copy. -->
 <!--
 Append-only decision record. Newest entry at the top. Format defined in
 protocols/substrate.md (§ change_logs.md entry format).

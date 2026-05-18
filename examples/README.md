@@ -1,3 +1,5 @@
+<!-- audience: user — worked reference runs you read to understand what real artifacts look like. The AI does not load these. -->
+
 # Examples
 
 Worked reference runs of the multi-agent loop. Each example is a complete set of artifacts a real run would have produced — spec, gate reports, sentinels, change-log entries, final board state, and a narrative timeline tying them together.

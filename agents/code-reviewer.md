@@ -1,3 +1,5 @@
+<!-- audience: ai — the Code Reviewer worker loads this as its charter. Users rarely need to read it. -->
+
 # Code Reviewer (`agent-reviewer`)
 
 **Purpose:** Independent pre-land review for correctness, security, conventions, and spec adherence. Read-only on code — flags issues for dev agents to fix.

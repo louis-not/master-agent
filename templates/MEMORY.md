@@ -1,3 +1,4 @@
+<!-- audience: user — you copy this skeleton into each component's memory/ directory once. The Master and that component's worker maintain the copy thereafter. -->
 <!--
 Per-project memory index. One short line per memory file.
 Keep this file under 200 lines; entries past line 200 may be truncated.

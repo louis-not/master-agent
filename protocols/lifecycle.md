@@ -1,3 +1,5 @@
+<!-- audience: ai+user — the Master obeys this; users read it to understand gates, conflict resolution, worker resume, and the intervention contract. -->
+
 # Lifecycle
 
 A feature moves left-to-right across the kanban board (`board.md`). The Master moves the card; sentinels gate the moves.

@@ -1,3 +1,4 @@
+<!-- audience: user — you copy this skeleton into your orchestrator root once. The Master writes to the copy thereafter. -->
 <!--
 Kanban board — features across all components. The Master moves cards between
 columns as sentinels arrive. The board IS the tracker; no separate status field.

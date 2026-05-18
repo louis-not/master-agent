@@ -1,3 +1,5 @@
+<!-- audience: ai+user — the Master obeys this; users read it to know what branch and commit shape to expect. -->
+
 # Git Discipline
 
 Only rules specific to this multi-agent setup. Standard git safety (no force-push without reason, no `--no-verify`, ask before destructive ops, never push secrets) is assumed.
