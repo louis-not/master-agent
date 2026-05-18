@@ -6,9 +6,10 @@ How the Master talks to workers and how state persists.
 
 ## Channels
 
-1. **User ↔ Master** — the only conversational channel.
+1. **User ↔ Master** — the primary conversational channel; the recommended path for anything that changes scope or spec.
 2. **Master → Worker** — `tmux send-keys` with self-contained prompts. Workers have no chat context.
 3. **Worker → Master** — workers write to memory files and drop a sentinel. Master reads files, not panes.
+4. **User ↔ Worker (direct)** — the technical user MAY attach to a worker's pane (`tmux attach -t agent-<role>`) and talk to the worker directly. This is a documented power-user channel, not a violation. See the rules in [protocols/lifecycle.md § User intervention contract](lifecycle.md#user-intervention-contract); the worker echoes the interaction back to the Master via the sentinel's `USER_PANE_INPUT` field (defined below).
 
 Workers never message each other.
 
@@ -41,6 +42,10 @@ FILES_TOUCHED=<<<
 - <path>
 - ...
 >>>
+USER_PANE_INPUT=<<<
+- <what the user typed into your pane, summarized> — <how you incorporated it>
+- ... (or: none)
+>>>
 NEXT_SUGGESTED=<optional one-liner pointing at what should happen next, or: none>
 ```
 
@@ -49,6 +54,7 @@ Rules:
 - **DECISIONS is non-optional for non-trivial work.** A `done` sentinel with no decisions is a smell — either the work was trivial (say so in SUMMARY) or the worker didn't surface what it chose.
 - **AMBIGUITIES is the worker's escape hatch.** Anything guessed must appear here so the Master can confirm with the user at the next gate. Empty only if the brief was exhaustively unambiguous.
 - **FILES_TOUCHED enables async inspection** — `git diff` against this list tells the story without re-reading the brief.
+- **USER_PANE_INPUT is mandatory if the user typed anything into your pane during this dispatch.** Summarize what they said and how you acted on it. If the user did not interact directly, write `none`. This is how the Master reconciles direct interventions with its own state.
 - `STATUS=block` requires `AMBIGUITIES` to name the blocker; the Master cannot unblock from a one-line note.
 - `STATUS=fail` (QA only) requires `DECISIONS` to enumerate which acceptance criteria failed and the evidence (test name, output).
 
@@ -82,6 +88,7 @@ Every dispatch prompt MUST include:
 4. The expected output location (specific file path).
 5. The completion sentinel to write.
 6. Explicit "report blockers — do not guess" language.
+7. A reminder that the user may attach to the worker's pane and provide direct input; if that happens, the worker must summarize the exchange in the sentinel's `USER_PANE_INPUT` field.
 
 A bad brief produces shallow work. The Master synthesizes context; the worker executes. Never delegate understanding.
 

@@ -91,7 +91,7 @@ print_sessions() {
     printf '  %s(tmux not installed)%s\n' "$C_WARN" "$C_RESET"; return
   fi
   local out
-  out=$(tmux list-sessions -F '#{session_name}|#{session_created}' 2>/dev/null \
+  out=$( { tmux list-sessions -F '#{session_name}|#{session_created}' 2>/dev/null || true; } \
          | awk -F'|' '$1 ~ /^agent-/ { print }')
   if [ -z "$out" ]; then
     printf '  %s(no agent-* sessions alive)%s\n' "$C_DIM" "$C_RESET"; return
@@ -137,13 +137,22 @@ print_sentinels() {
   fi
   while IFS= read -r f; do
     local rel="${f#$PROJECT_ROOT/}"
-    local status summary mtime
+    local status summary mtime pane_input
     status=$(read_sentinel_value "$f" STATUS 1)
     summary=$(read_sentinel_value "$f" SUMMARY 1)
+    pane_input=$(read_sentinel_value "$f" USER_PANE_INPUT 3)
     mtime=$(date -r "$f" '+%Y-%m-%d %H:%M' 2>/dev/null || stat -c '%y' "$f" | cut -c1-16)
     local sc; sc=$(status_color "$status")
     printf '  %-42s %sSTATUS=%-7s%s %s\n' "$rel" "$sc" "$status" "$C_RESET" "$mtime"
     [ -n "$summary" ] && printf '  %-42s %ssummary:%s %s\n' "" "$C_DIM" "$C_RESET" "$summary"
+    # Surface direct pane interventions prominently — they are the user's own input
+    # and should not get lost in the noise.
+    if [ -n "$pane_input" ] && [ "$pane_input" != "none" ] && [ "$pane_input" != "- none" ]; then
+      while IFS= read -r line; do
+        [ -z "$line" ] && continue
+        printf '  %-42s %suser-pane:%s %s\n' "" "$C_WARN" "$C_RESET" "$line"
+      done <<< "$pane_input"
+    fi
   done <<< "$files"
 }
 

@@ -48,16 +48,16 @@ Every gate uses the same report shape — see [protocols/lifecycle.md § Gate re
 
 Ad-hoc escalations: ambiguous requirements not resolvable from memory, scope creep, hung agents, schema migrations on populated tables, anything that touches a shared external system.
 
-## Inspection surface
+## Inspection and intervention surface
 
-The user inspects work primarily through artifacts on disk — not by attaching to tmux panes:
+The user has multiple ways to see and influence the running loop, ordered from lightest-weight to most direct:
 
-- `scripts/agent-status` — one-shot summary of board state, live sessions, latest sentinel of each worker, and head of each `change_logs.md`. This is the user's primary at-a-glance view.
-- Per-component `memory/change_logs.md` — decision history; `git log -p` against these tells the whole story.
-- Gate reports — the conversational surface (see above).
-- Memory files (`specs/`, `screens/`, `test_plans/`, `reviews/`) — drill-down detail when needed.
-
-Pane attach (`tmux attach -t agent-<role>`) is debugging-only — see [protocols/lifecycle.md § User intervention contract](protocols/lifecycle.md#user-intervention-contract).
+- `scripts/agent-status` — one-shot summary of board state, live sessions, latest sentinel of each worker, and head of each `change_logs.md`. The default at-a-glance view.
+- Per-component `memory/change_logs.md` — decision history; `git log -p` against these tells the whole story asynchronously.
+- Gate reports — the primary conversational surface (see above).
+- Memory files (`specs/`, `screens/`, `test_plans/`, `reviews/`) — drill-down detail.
+- **Mediated intervention** (talk to the Master) — the recommended path for scope or spec changes.
+- **Direct pane interaction** (`tmux attach -t agent-<role>`) — a documented power-user channel. Read-only attach is always fine. Typing into a worker's pane is supported for real-time clarifications and context; the worker echoes the exchange back to the Master via the sentinel's `USER_PANE_INPUT` field, so state stays consistent. Rules and forbidden actions: [protocols/lifecycle.md § User intervention contract](protocols/lifecycle.md#user-intervention-contract).
 
 ## Read these
 

@@ -147,9 +147,11 @@ If no prior sentinel and no change_logs entry exist, the worker is treated as a 
 
 ## User intervention contract
 
-The user has exactly one canonical way to redirect work: **talk to the Master**. The Master is the only entity that can write briefs, clear sentinels, and re-dispatch.
+The user has two supported ways to influence in-flight work. Both are first-class; pick by the kind of change you're making.
 
-**Mid-flight redirect** (user wants to change direction while a worker is running):
+### Mode 1 — Mediated (default, recommended for most changes)
+
+User → Master → addendum + re-dispatch. Best for: scope changes, spec amendments, anything you want recorded as a deliberate decision in the spec.
 
 1. User tells the Master what to change.
 2. Master writes the addendum into the relevant spec or memory file (so the change is durable, not just in the brief).
@@ -158,6 +160,40 @@ The user has exactly one canonical way to redirect work: **talk to the Master**.
 5. Master re-dispatches with the standard brief + an `## Addendum <timestamp>` block naming what changed and why.
 6. Master appends a `## User intervention <timestamp>` note to the feature's spec file so the audit trail captures that the redirect was user-driven, not Master-driven.
 
-**Pane-attach is debug only.** A user *can* `tmux attach -t agent-frontend` and read what the worker is doing. Typing into that pane is forbidden under the protocol — it creates an out-of-band channel the Master cannot see, and the Master's state will diverge from reality. If the user finds themselves wanting to type into a pane, that is a signal that the Master is not exposing the right intervention surface; treat it as a bug in the brief or gate report, not as a workaround.
+### Mode 2 — Direct pane interaction (power-user channel)
 
-**Aborting a feature.** User tells the Master "stop work on `<feature>`". Master interrupts all live workers on that feature, clears their sentinels, moves the card to **Blocked** with a `Why blocked: user-aborted <timestamp>` line, and waits for further instruction. No code is reverted unless the user explicitly asks — the branch is left as-is for later inspection.
+The user attaches to a worker's pane and talks to the worker directly. Best for: real-time clarifications, pasting an error log or screenshot, course-corrections that don't change scope or spec.
+
+```
+tmux attach -t agent-<role>      # attach
+# type at the worker as you would talk to any Claude session
+Ctrl-b d                          # detach when done
+```
+
+**Rules** (so direct interaction doesn't desync the Master's view):
+
+- **The worker must surface the exchange in its next sentinel** under `USER_PANE_INPUT`, summarizing what the user said and how it was incorporated. This is mandatory whenever direct input occurred; the worker's brief reminds it of this obligation.
+- **The user should also mention the intervention to the Master at the next gate** ("I told agent-frontend to use the existing `Avatar` component instead of building a new one"). This is defense in depth — if the worker forgets, the user's report still keeps the Master's view consistent.
+- **Forbidden at the pane level** (these would corrupt the substrate):
+  - Manually writing the worker's sentinel file. Let the worker write it.
+  - Asking the worker to commit or push — that remains the Master's job after Gate 3.
+  - Asking the worker to skip its `change_logs.md` entry — every accepted change must be logged.
+  - Directing the worker to edit a component it does not own (don't tell Frontend to edit Backend code).
+  - Approving or transitioning kanban cards — the Master owns the board.
+
+### When to use which
+
+| You want to… | Use |
+|---|---|
+| Change scope, drop a feature, add a requirement | Mediated |
+| Paste an error log, give real-time context | Direct |
+| Clarify a guess the worker is making *right now* | Direct |
+| Tell the worker to abandon a design and try another | Mediated (so the spec records it) |
+| Ask the worker what it's currently doing | Direct (read-only attach; no input needed) |
+| Stop the whole feature | Mediated (see Aborting below) |
+
+If you find yourself wanting to type the *same* clarification across multiple panes, that's a sign the spec is wrong — fix it in the spec via the Mediated path so future runs don't need the same intervention.
+
+### Aborting a feature
+
+User tells the Master "stop work on `<feature>`". Master interrupts all live workers on that feature, clears their sentinels, moves the card to **Blocked** with a `Why blocked: user-aborted <timestamp>` line, and waits for further instruction. No code is reverted unless the user explicitly asks — the branch is left as-is for later inspection.
